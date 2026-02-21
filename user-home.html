@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <i class="fas fa-brain"></i>
+            <span>MindMonitor</span>
+        </div>
+        <nav class="nav-links">
+            <span id="userName" style="font-weight: 500;">User</span>
+            <a href="index.html" onclick="localStorage.removeItem('mhd_current_user')"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </header>
+
+    <div class="dashboard-container">
+        <!-- Sidebar Profile -->
+        <aside class="profile-card">
+            <div class="avatar-lg" id="userAvatar">U</div>
+            <h3 id="userName">Loading...</h3>
+            <p style="font-size: 0.9rem; color: var(--secondary);">Member</p>
+            <div id="statusBadge" class="status-badge status-normal">Stable</div>
+            
+            <div style="margin-top: 2rem; text-align: left; border-top: 1px solid #eee; padding-top: 1rem;">
+                <p style="font-size: 0.85rem; color: var(--secondary); margin-bottom: 5px;">
+                    <i class="fas fa-shield-alt"></i> Privacy Protected
+                </p>
+                <p style="font-size: 0.85rem; color: var(--secondary);">
+                    <i class="fas fa-lock"></i> Data Encrypted
+                </p>
+            </div>
+        </aside>
+
+        <!-- Main Feed -->
+        <main class="feed-section">
+            <div class="create-post">
+                <h4><i class="fas fa-pen" style="color: var(--primary);"></i> Express Yourself</h4>
+                <form id="tweetForm" style="margin-top: 15px;">
+                    <textarea id="tweetContent" class="form-control" rows="3" placeholder="Share your thoughts, feelings, or daily experiences..." required></textarea>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                        <span style="font-size: 0.8rem; color: var(--secondary);">
+                            <i class="fas fa-robot"></i> Our system will analyze your text for signs of distress.
+                        </span>
+                        <button type="submit" class="btn btn-primary" style="width: auto; padding: 10px 20px;">Post</button>
+                    </div>
+                </form>
+            </div>
+
+            <h4 style="margin-bottom: 10px; color: var(--dark);">Your Activity Log</h4>
+            <div id="tweetFeed">
+                <!-- Tweets load here -->
+            </div>
+        </main>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

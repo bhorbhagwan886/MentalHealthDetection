@@ -1,0 +1,1993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindWatch - Mental Health Detection Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0f1a;
+            --bg-secondary: #111827;
+            --fg: #f1f5f9;
+            --muted: #64748b;
+            --accent: #14b8a6;
+            --accent-glow: rgba(20, 184, 166, 0.3);
+            --card: #1e293b;
+            --card-hover: #273449;
+            --border: #334155;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #22c55e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Animated Background */
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .animated-bg::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at 30% 20%, rgba(20, 184, 166, 0.08) 0%, transparent 50%),
+                        radial-gradient(ellipse at 70% 80%, rgba(99, 102, 241, 0.06) 0%, transparent 50%),
+                        radial-gradient(ellipse at 50% 50%, rgba(20, 184, 166, 0.04) 0%, transparent 70%);
+            animation: bgMove 20s ease-in-out infinite;
+        }
+
+        @keyframes bgMove {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(2%, 2%) rotate(1deg); }
+            66% { transform: translate(-1%, 1%) rotate(-1deg); }
+        }
+
+        /* Floating Particles */
+        .particle {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            background: var(--accent);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0.3;
+            animation: float 15s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0.3; }
+            25% { transform: translateY(-100px) translateX(50px); opacity: 0.6; }
+            50% { transform: translateY(-200px) translateX(-30px); opacity: 0.3; }
+            75% { transform: translateY(-100px) translateX(-50px); opacity: 0.5; }
+        }
+
+        /* Grid Pattern */
+        .grid-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(20, 184, 166, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(20, 184, 166, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+        }
+
+        /* View Container */
+        .view {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .view.active {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Auth Forms */
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .auth-card {
+            background: linear-gradient(145deg, var(--card) 0%, rgba(30, 41, 59, 0.8) 100%);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 440px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5),
+                        0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+        }
+
+        .auth-logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--accent) 0%, #0d9488 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 40px var(--accent-glow);
+        }
+
+        .input-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .input-field {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 0.875rem 1rem;
+            color: var(--fg);
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .input-field::placeholder {
+            color: var(--muted);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.875rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9375rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent) 0%, #0d9488 100%);
+            color: white;
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--accent-glow);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: var(--card);
+            color: var(--fg);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--card-hover);
+            border-color: var(--accent);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 15, 26, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
+            padding: 0 1.5rem;
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .nav-logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--accent) 0%, #0d9488 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-link {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            color: var(--muted);
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--fg);
+            background: var(--card);
+        }
+
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent) 0%, #6366f1 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        /* Main Layout */
+        .main-layout {
+            display: flex;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding-top: 80px;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            padding: 1.5rem;
+            position: sticky;
+            top: 80px;
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+        }
+
+        .sidebar-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .menu-item:hover {
+            background: var(--bg);
+            color: var(--fg);
+        }
+
+        .menu-item.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 1.5rem;
+            border-left: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+            max-width: 600px;
+        }
+
+        .right-sidebar {
+            width: 320px;
+            padding: 1.5rem;
+        }
+
+        /* Tweet Card */
+        .tweet-compose {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .compose-header {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .compose-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--fg);
+            font-size: 1.125rem;
+            resize: none;
+            min-height: 60px;
+        }
+
+        .compose-input:focus {
+            outline: none;
+        }
+
+        .compose-input::placeholder {
+            color: var(--muted);
+        }
+
+        .compose-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .compose-tools {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .tool-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: transparent;
+            border: none;
+            color: var(--accent);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .tool-btn:hover {
+            background: var(--bg);
+        }
+
+        /* Tweet Feed */
+        .tweet-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            transition: all 0.2s ease;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tweet-card:hover {
+            border-color: rgba(20, 184, 166, 0.3);
+        }
+
+        .tweet-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .tweet-author-info {
+            flex: 1;
+        }
+
+        .tweet-author-name {
+            font-weight: 600;
+            color: var(--fg);
+        }
+
+        .tweet-author-handle {
+            color: var(--muted);
+            font-size: 0.875rem;
+        }
+
+        .tweet-time {
+            color: var(--muted);
+            font-size: 0.875rem;
+        }
+
+        .tweet-content {
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 0.75rem;
+        }
+
+        .tweet-image {
+            width: 100%;
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+        }
+
+        .tweet-actions {
+            display: flex;
+            gap: 1.5rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .tweet-action {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--muted);
+            cursor: pointer;
+            transition: color 0.2s ease;
+            background: none;
+            border: none;
+            font-size: 0.875rem;
+        }
+
+        .tweet-action:hover {
+            color: var(--accent);
+        }
+
+        /* Mental Health Badge */
+        .mh-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.25rem 0.625rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .mh-badge.normal {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--success);
+        }
+
+        .mh-badge.warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+        }
+
+        .mh-badge.alert {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+        }
+
+        /* Stats Card */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+        }
+
+        .stat-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .chart-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .chart-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 0.5rem;
+            height: 120px;
+        }
+
+        .chart-bar {
+            flex: 1;
+            background: linear-gradient(180deg, var(--accent) 0%, rgba(20, 184, 166, 0.3) 100%);
+            border-radius: 6px 6px 0 0;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .chart-bar:hover {
+            background: linear-gradient(180deg, #2dd4bf 0%, rgba(20, 184, 166, 0.5) 100%);
+        }
+
+        .chart-bar::after {
+            content: attr(data-value);
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            color: var(--muted);
+        }
+
+        /* Admin Dashboard */
+        .admin-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .admin-stat {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .admin-stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+        }
+
+        .admin-stat-icon.users {
+            background: rgba(20, 184, 166, 0.15);
+            color: var(--accent);
+        }
+
+        .admin-stat-icon.tweets {
+            background: rgba(99, 102, 241, 0.15);
+            color: #6366f1;
+        }
+
+        .admin-stat-icon.alerts {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+        }
+
+        .admin-stat-icon.normal {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--success);
+        }
+
+        .admin-stat-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .admin-stat-label {
+            color: var(--muted);
+            font-size: 0.875rem;
+        }
+
+        /* Data Table */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            text-align: left;
+            padding: 1rem;
+            color: var(--muted);
+            font-weight: 500;
+            font-size: 0.875rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .data-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9375rem;
+        }
+
+        .data-table tr:hover td {
+            background: var(--card-hover);
+        }
+
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .user-cell-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent) 0%, #6366f1 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+
+        /* Pie Chart */
+        .pie-chart {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            position: relative;
+            margin: 0 auto;
+        }
+
+        .pie-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            background: var(--card);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pie-center-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .pie-center-label {
+            font-size: 0.75rem;
+            color: var(--muted);
+        }
+
+        /* Search */
+        .search-box {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .search-input {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 0.75rem 1rem 0.75rem 2.75rem;
+            color: var(--fg);
+            font-size: 0.9375rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+        }
+
+        /* Trending Topics */
+        .trending-item {
+            padding: 0.875rem 0;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .trending-item:last-child {
+            border-bottom: none;
+        }
+
+        .trending-item:hover {
+            color: var(--accent);
+        }
+
+        .trending-category {
+            font-size: 0.75rem;
+            color: var(--muted);
+        }
+
+        .trending-topic {
+            font-weight: 600;
+            margin: 0.25rem 0;
+        }
+
+        .trending-count {
+            font-size: 0.75rem;
+            color: var(--muted);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 1rem;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .modal {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--bg);
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            color: var(--fg);
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 0.25rem;
+            background: var(--bg);
+            padding: 0.25rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 0.625rem 1rem;
+            border-radius: 8px;
+            background: transparent;
+            border: none;
+            color: var(--muted);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab.active {
+            background: var(--card);
+            color: var(--fg);
+        }
+
+        .tab:hover:not(.active) {
+            color: var(--fg);
+        }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 1001;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .toast {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            animation: slideIn 0.3s ease-out;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .toast.success {
+            border-color: var(--success);
+        }
+
+        .toast.success .toast-icon {
+            color: var(--success);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .right-sidebar {
+                display: none;
+            }
+            
+            .admin-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            
+            .main-content {
+                border-left: none;
+                border-right: none;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--muted);
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-bg"></div>
+    <div class="grid-pattern"></div>
+    
+    <!-- Floating Particles -->
+    <div class="particle" style="left: 10%; top: 20%; animation-delay: 0s;"></div>
+    <div class="particle" style="left: 20%; top: 60%; animation-delay: 2s;"></div>
+    <div class="particle" style="left: 40%; top: 30%; animation-delay: 4s;"></div>
+    <div class="particle" style="left: 60%; top: 70%; animation-delay: 6s;"></div>
+    <div class="particle" style="left: 80%; top: 40%; animation-delay: 8s;"></div>
+    <div class="particle" style="left: 90%; top: 80%; animation-delay: 10s;"></div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Login View -->
+    <div class="view active" id="loginView">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-logo">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                        <path d="M12 2a10 10 0 1 0 10 10H12V2z"/>
+                        <path d="M12 2a10 10 0 0 1 10 10"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                </div>
+                <h1 class="text-2xl font-bold mb-2">Welcome to MindWatch</h1>
+                <p class="text-[var(--muted)] mb-6">Sign in to your account to continue</p>
+                
+                <form id="loginForm">
+                    <div class="input-group">
+                        <label for="loginEmail">Email Address</label>
+                        <input type="email" id="loginEmail" class="input-field" placeholder="Enter your email" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" class="input-field" placeholder="Enter your password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full mb-4">Sign In</button>
+                </form>
+                
+                <div class="text-center">
+                    <p class="text-[var(--muted)]">
+                        Don't have an account? 
+                        <span class="text-[var(--accent)] cursor-pointer hover:underline" onclick="showView('registerView')">Create Account</span>
+                    </p>
+                </div>
+                
+                <div class="mt-6 pt-6 border-t border-[var(--border)]">
+                    <p class="text-[var(--muted)] text-sm text-center mb-3">Demo Access</p>
+                    <div class="flex gap-2">
+                        <button class="btn btn-secondary flex-1 text-sm" onclick="demoLogin('user')">User Demo</button>
+                        <button class="btn btn-secondary flex-1 text-sm" onclick="demoLogin('admin')">Admin Demo</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register View -->
+    <div class="view" id="registerView">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-logo">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                        <path d="M12 2a10 10 0 1 0 10 10H12V2z"/>
+                        <path d="M12 2a10 10 0 0 1 10 10"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                </div>
+                <h1 class="text-2xl font-bold mb-2">Create Account</h1>
+                <p class="text-[var(--muted)] mb-6">Join MindWatch and connect with others</p>
+                
+                <form id="registerForm">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="input-group">
+                            <label for="regFirstName">First Name</label>
+                            <input type="text" id="regFirstName" class="input-field" placeholder="John" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="regLastName">Last Name</label>
+                            <input type="text" id="regLastName" class="input-field" placeholder="Doe" required>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="regEmail">Email Address</label>
+                        <input type="email" id="regEmail" class="input-field" placeholder="john@example.com" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="regUsername">Username</label>
+                        <input type="text" id="regUsername" class="input-field" placeholder="johndoe" required>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="input-group">
+                            <label for="regDOB">Date of Birth</label>
+                            <input type="date" id="regDOB" class="input-field" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="regGender">Gender</label>
+                            <select id="regGender" class="input-field" required>
+                                <option value="">Select</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="regPassword">Password</label>
+                        <input type="password" id="regPassword" class="input-field" placeholder="Create a strong password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full mb-4">Create Account</button>
+                </form>
+                
+                <p class="text-center text-[var(--muted)]">
+                    Already have an account? 
+                    <span class="text-[var(--accent)] cursor-pointer hover:underline" onclick="showView('loginView')">Sign In</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Dashboard View -->
+    <div class="view" id="userDashboard">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <div class="nav-content">
+                <div class="nav-logo">
+                    <div class="nav-logo-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                            <path d="M12 2a10 10 0 1 0 10 10H12V2z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </div>
+                    <span>MindWatch</span>
+                </div>
+                <div class="nav-links">
+                    <span class="nav-link active">Home</span>
+                    <span class="nav-link">Explore</span>
+                    <span class="nav-link">Notifications</span>
+                    <span class="nav-link">Messages</span>
+                </div>
+                <div class="nav-user">
+                    <div class="user-avatar" id="userAvatar">JD</div>
+                    <button class="btn btn-secondary text-sm" onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="main-layout">
+            <!-- Left Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-card">
+                    <div class="sidebar-menu">
+                        <div class="menu-item active">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                            </svg>
+                            Home Feed
+                        </div>
+                        <div class="menu-item">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"/>
+                                <path d="m21 21-4.35-4.35"/>
+                            </svg>
+                            Explore
+                        </div>
+                        <div class="menu-item">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                            </svg>
+                            Notifications
+                        </div>
+                        <div class="menu-item">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                            </svg>
+                            Messages
+                        </div>
+                        <div class="menu-item">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                            Profile
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-card">
+                    <h3 class="font-semibold mb-3">Your Wellbeing</h3>
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="pie-chart" style="background: conic-gradient(var(--success) 0deg 270deg, var(--warning) 270deg 324deg, var(--danger) 324deg 360deg);">
+                            <div class="pie-center">
+                                <span class="pie-center-value text-[var(--success)]">Good</span>
+                                <span class="pie-center-label">Status</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-sm text-[var(--muted)]">Your recent posts indicate a positive mental state. Keep up the great work!</p>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <!-- Tweet Compose -->
+                <div class="tweet-compose">
+                    <div class="compose-header">
+                        <div class="user-avatar" id="composeAvatar">JD</div>
+                        <textarea class="compose-input" id="tweetInput" placeholder="What's on your mind today?"></textarea>
+                    </div>
+                    <div class="compose-actions">
+                        <div class="compose-tools">
+                            <button class="tool-btn" title="Add Image">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <polyline points="21 15 16 10 5 21"/>
+                                </svg>
+                            </button>
+                            <button class="tool-btn" title="Add Emoji">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+                                    <line x1="9" y1="9" x2="9.01" y2="9"/>
+                                    <line x1="15" y1="9" x2="15.01" y2="9"/>
+                                </svg>
+                            </button>
+                            <button class="tool-btn" title="Location">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                    <circle cx="12" cy="10" r="3"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <button class="btn btn-primary" onclick="postTweet()">Post Tweet</button>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(this, 'feed')">For You</button>
+                    <button class="tab" onclick="switchTab(this, 'following')">Following</button>
+                    <button class="tab" onclick="switchTab(this, 'trending')">Trending</button>
+                </div>
+
+                <!-- Tweet Feed -->
+                <div id="tweetFeed"></div>
+            </main>
+
+            <!-- Right Sidebar -->
+            <aside class="right-sidebar">
+                <div class="search-box">
+                    <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="m21 21-4.35-4.35"/>
+                    </svg>
+                    <input type="text" class="search-input" placeholder="Search MindWatch">
+                </div>
+
+                <div class="chart-container">
+                    <h3 class="chart-title">Trending Topics</h3>
+                    <div class="trending-item">
+                        <div class="trending-category">Mental Health</div>
+                        <div class="trending-topic">#SelfCareSunday</div>
+                        <div class="trending-count">12.4K posts</div>
+                    </div>
+                    <div class="trending-item">
+                        <div class="trending-category">Wellness</div>
+                        <div class="trending-topic">#MindfulnessMatters</div>
+                        <div class="trending-count">8.2K posts</div>
+                    </div>
+                    <div class="trending-item">
+                        <div class="trending-category">Support</div>
+                        <div class="trending-topic">#YouAreNotAlone</div>
+                        <div class="trending-count">6.7K posts</div>
+                    </div>
+                    <div class="trending-item">
+                        <div class="trending-category">Health</div>
+                        <div class="trending-topic">#MentalHealthAwareness</div>
+                        <div class="trending-count">5.1K posts</div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3 class="chart-title">Community Stats</h3>
+                    <div class="chart-bars">
+                        <div class="chart-bar" style="height: 80%;" data-value="Mon"></div>
+                        <div class="chart-bar" style="height: 65%;" data-value="Tue"></div>
+                        <div class="chart-bar" style="height: 90%;" data-value="Wed"></div>
+                        <div class="chart-bar" style="height: 75%;" data-value="Thu"></div>
+                        <div class="chart-bar" style="height: 95%;" data-value="Fri"></div>
+                        <div class="chart-bar" style="height: 85%;" data-value="Sat"></div>
+                        <div class="chart-bar" style="height: 70%;" data-value="Sun"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-[var(--muted)] mt-2">
+                        <span>Mon</span>
+                        <span>Tue</span>
+                        <span>Wed</span>
+                        <span>Thu</span>
+                        <span>Fri</span>
+                        <span>Sat</span>
+                        <span>Sun</span>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard View -->
+    <div class="view" id="adminDashboard">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <div class="nav-content">
+                <div class="nav-logo">
+                    <div class="nav-logo-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                            <path d="M12 2a10 10 0 1 0 10 10H12V2z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </div>
+                    <span>MindWatch Admin</span>
+                </div>
+                <div class="nav-links">
+                    <span class="nav-link active">Dashboard</span>
+                    <span class="nav-link" onclick="showAdminSection('users')">Users</span>
+                    <span class="nav-link" onclick="showAdminSection('tweets')">Tweets</span>
+                    <span class="nav-link" onclick="showAdminSection('analysis')">Analysis</span>
+                </div>
+                <div class="nav-user">
+                    <div class="user-avatar" style="background: linear-gradient(135deg, #ef4444 0%, #f97316 100%);">AD</div>
+                    <button class="btn btn-secondary text-sm" onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="main-layout" style="display: block; max-width: 100%; padding: 80px 2rem 2rem;">
+            <!-- Admin Stats -->
+            <div class="admin-grid" id="adminStats">
+                <div class="admin-stat">
+                    <div class="admin-stat-icon users">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                    </div>
+                    <div class="admin-stat-value" id="totalUsers">1,247</div>
+                    <div class="admin-stat-label">Total Users</div>
+                </div>
+                <div class="admin-stat">
+                    <div class="admin-stat-icon tweets">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                    </div>
+                    <div class="admin-stat-value" id="totalTweets">8,432</div>
+                    <div class="admin-stat-label">Total Tweets</div>
+                </div>
+                <div class="admin-stat">
+                    <div class="admin-stat-icon alerts">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                            <line x1="12" y1="9" x2="12" y2="13"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                        </svg>
+                    </div>
+                    <div class="admin-stat-value text-[var(--danger)]" id="alertUsers">23</div>
+                    <div class="admin-stat-label">Alert Status</div>
+                </div>
+                <div class="admin-stat">
+                    <div class="admin-stat-icon normal">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                    </div>
+                    <div class="admin-stat-value text-[var(--success)]" id="normalUsers">1,224</div>
+                    <div class="admin-stat-label">Normal Status</div>
+                </div>
+            </div>
+
+            <!-- Admin Content Sections -->
+            <div id="adminContent">
+                <!-- Overview Section -->
+                <div id="overviewSection">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Mental Health Distribution -->
+                        <div class="chart-container">
+                            <h3 class="chart-title">Platform Mental Health Distribution</h3>
+                            <div class="flex items-center justify-center py-6">
+                                <div class="pie-chart" style="width: 200px; height: 200px; background: conic-gradient(var(--success) 0deg 280deg, var(--warning) 280deg 330deg, var(--danger) 330deg 360deg);">
+                                    <div class="pie-center" style="width: 120px; height: 120px;">
+                                        <span class="pie-center-value">98.1%</span>
+                                        <span class="pie-center-label">Healthy</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex justify-center gap-6 mt-4">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-3 h-3 rounded-full bg-[var(--success)]"></div>
+                                    <span class="text-sm text-[var(--muted)]">Normal (98.1%)</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-3 h-3 rounded-full bg-[var(--warning)]"></div>
+                                    <span class="text-sm text-[var(--muted)]">Warning (1.4%)</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-3 h-3 rounded-full bg-[var(--danger)]"></div>
+                                    <span class="text-sm text-[var(--muted)]">Alert (0.5%)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Weekly Activity -->
+                        <div class="chart-container">
+                            <h3 class="chart-title">Weekly Activity & Detection</h3>
+                            <div class="chart-bars" style="height: 160px;">
+                                <div class="chart-bar" style="height: 70%;" data-value="245"></div>
+                                <div class="chart-bar" style="height: 85%;" data-value="298"></div>
+                                <div class="chart-bar" style="height: 60%;" data-value="210"></div>
+                                <div class="chart-bar" style="height: 95%;" data-value="332"></div>
+                                <div class="chart-bar" style="height: 80%;" data-value="280"></div>
+                                <div class="chart-bar" style="height: 90%;" data-value="315"></div>
+                                <div class="chart-bar" style="height: 75%;" data-value="262"></div>
+                            </div>
+                            <div class="flex justify-between text-xs text-[var(--muted)] mt-4">
+                                <span>Mon<br>245</span>
+                                <span>Tue<br>298</span>
+                                <span>Wed<br>210</span>
+                                <span>Thu<br>332</span>
+                                <span>Fri<br>280</span>
+                                <span>Sat<br>315</span>
+                                <span>Sun<br>262</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Alerts -->
+                    <div class="chart-container mt-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="chart-title mb-0">Recent Mental Health Alerts</h3>
+                            <span class="mh-badge alert">23 Active</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Email</th>
+                                        <th>Flagged Tweets</th>
+                                        <th>Status</th>
+                                        <th>Last Active</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="alertsTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Users Section -->
+                <div id="usersSection" style="display: none;">
+                    <div class="chart-container">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="chart-title mb-0">All Registered Users</h3>
+                            <div class="search-box" style="width: 300px; margin-bottom: 0;">
+                                <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="11" cy="11" r="8"/>
+                                    <path d="m21 21-4.35-4.35"/>
+                                </svg>
+                                <input type="text" class="search-input" placeholder="Search users..." id="userSearch" onkeyup="filterUsers()">
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>User ID</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Gender</th>
+                                        <th>Location</th>
+                                        <th>Mental Status</th>
+                                        <th>Joined</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tweets Section -->
+                <div id="tweetsSection" style="display: none;">
+                    <div class="chart-container">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="chart-title mb-0">All Tweets</h3>
+                            <div class="flex gap-2">
+                                <button class="btn btn-secondary text-sm" onclick="filterTweets('all')">All</button>
+                                <button class="btn btn-secondary text-sm" onclick="filterTweets('flagged')">Flagged</button>
+                                <button class="btn btn-secondary text-sm" onclick="filterTweets('normal')">Normal</button>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Tweet ID</th>
+                                        <th>User</th>
+                                        <th>Content</th>
+                                        <th>Status</th>
+                                        <th>Posted</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tweetsTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analysis Section -->
+                <div id="analysisSection" style="display: none;">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="chart-container">
+                            <h3 class="chart-title">Mental Health Keywords Frequency</h3>
+                            <div id="keywordsChart" class="space-y-3 mt-4"></div>
+                        </div>
+                        <div class="chart-container">
+                            <h3 class="chart-title">Detection Accuracy Over Time</h3>
+                            <div class="chart-bars" style="height: 180px; margin-top: 1rem;">
+                                <div class="chart-bar" style="height: 75%;"></div>
+                                <div class="chart-bar" style="height: 82%;"></div>
+                                <div class="chart-bar" style="height: 78%;"></div>
+                                <div class="chart-bar" style="height: 88%;"></div>
+                                <div class="chart-bar" style="height: 85%;"></div>
+                                <div class="chart-bar" style="height: 92%;"></div>
+                                <div class="chart-bar" style="height: 95%;"></div>
+                                <div class="chart-bar" style="height: 91%;"></div>
+                                <div class="chart-bar" style="height: 94%;"></div>
+                                <div class="chart-bar" style="height: 96%;"></div>
+                            </div>
+                            <p class="text-sm text-[var(--muted)] mt-4 text-center">Detection accuracy has improved from 75% to 96% over 10 months</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Detail Modal -->
+    <div class="modal-overlay" id="userModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="text-xl font-bold">User Details</h2>
+                <button class="modal-close" onclick="closeModal()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== DATA ====================
+        const mentalHealthKeywords = [
+            'depressed', 'depression', 'anxiety', 'anxious', 'suicide', 'suicidal',
+            'hopeless', 'worthless', 'empty', 'alone', 'lonely', 'sad', 'cry',
+            'crying', 'pain', 'hurt', 'suffering', 'tired', 'exhausted', 'help',
+            'kill myself', 'end it', 'give up', 'no point', 'overwhelmed',
+            'panic', 'fear', 'scared', 'trauma', 'ptsd', 'mental', 'breakdown'
+        ];
+
+        const users = [
+            { id: 'USR001', firstName: 'Sarah', lastName: 'Johnson', email: 'sarah.j@email.com', username: 'sarahj', gender: 'Female', state: 'California', country: 'USA', status: 'normal', joined: '2024-01-15' },
+            { id: 'USR002', firstName: 'Michael', lastName: 'Chen', email: 'mchen@email.com', username: 'mikechen', gender: 'Male', state: 'New York', country: 'USA', status: 'normal', joined: '2024-02-03' },
+            { id: 'USR003', firstName: 'Emily', lastName: 'Davis', email: 'emily.d@email.com', username: 'emilyd', gender: 'Female', state: 'Texas', country: 'USA', status: 'warning', joined: '2024-01-28' },
+            { id: 'USR004', firstName: 'James', lastName: 'Wilson', email: 'jwilson@email.com', username: 'jamesw', gender: 'Male', state: 'Florida', country: 'USA', status: 'normal', joined: '2024-03-10' },
+            { id: 'USR005', firstName: 'Lisa', lastName: 'Anderson', email: 'lisa.a@email.com', username: 'lisaa', gender: 'Female', state: 'Washington', country: 'USA', status: 'alert', joined: '2024-02-20' },
+            { id: 'USR006', firstName: 'David', lastName: 'Martinez', email: 'dmartinez@email.com', username: 'davidm', gender: 'Male', state: 'Arizona', country: 'USA', status: 'normal', joined: '2024-03-05' },
+            { id: 'USR007', firstName: 'Rachel', lastName: 'Brown', email: 'rachel.b@email.com', username: 'rachelb', gender: 'Female', state: 'Colorado', country: 'USA', status: 'warning', joined: '2024-01-22' },
+            { id: 'USR008', firstName: 'Chris', lastName: 'Taylor', email: 'ctaylor@email.com', username: 'christ', gender: 'Male', state: 'Oregon', country: 'USA', status: 'normal', joined: '2024-02-14' }
+        ];
+
+        const tweets = [
+            { id: 'TWT001', userId: 'USR001', userName: 'Sarah Johnson', content: 'Just finished a 5k run! Feeling amazing and energized. Remember to take care of your physical health too!', status: 'normal', time: '2 hours ago' },
+            { id: 'TWT002', userId: 'USR002', userName: 'Michael Chen', content: 'Working on a new project at work. Sometimes the pressure gets overwhelming but I\'m managing.', status: 'normal', time: '3 hours ago' },
+            { id: 'TWT003', userId: 'USR003', userName: 'Emily Davis', content: 'Feeling really anxious lately. Everything seems so hopeless and I don\'t know what to do anymore.', status: 'flagged', time: '4 hours ago' },
+            { id: 'TWT004', userId: 'USR004', userName: 'James Wilson', content: 'Had a great therapy session today. It\'s okay to ask for help when you need it!', status: 'normal', time: '5 hours ago' },
+            { id: 'TWT005', userId: 'USR005', userName: 'Lisa Anderson', content: 'I feel so alone and worthless. Nobody understands what I\'m going through. The pain is unbearable.', status: 'flagged', time: '6 hours ago' },
+            { id: 'TWT006', userId: 'USR006', userName: 'David Martinez', content: 'Beautiful sunset at the beach today. Grateful for moments like these.', status: 'normal', time: '7 hours ago' },
+            { id: 'TWT007', userId: 'USR007', userName: 'Rachel Brown', content: 'Struggling with depression again. It\'s hard to explain to people who don\'t understand.', status: 'flagged', time: '8 hours ago' },
+            { id: 'TWT008', userId: 'USR008', userName: 'Chris Taylor', content: 'Started practicing mindfulness meditation. Highly recommend for anyone feeling stressed!', status: 'normal', time: '9 hours ago' }
+        ];
+
+        let currentUser = null;
+        let isAdmin = false;
+
+        // ==================== VIEW MANAGEMENT ====================
+        function showView(viewId) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+        }
+
+        function demoLogin(type) {
+            if (type === 'admin') {
+                isAdmin = true;
+                currentUser = { name: 'Admin User', initials: 'AD' };
+                showView('adminDashboard');
+                loadAdminData();
+            } else {
+                isAdmin = false;
+                currentUser = { name: 'John Doe', initials: 'JD' };
+                document.getElementById('userAvatar').textContent = currentUser.initials;
+                document.getElementById('composeAvatar').textContent = currentUser.initials;
+                showView('userDashboard');
+                loadUserFeed();
+            }
+            showToast('Welcome back, ' + currentUser.name + '!', 'success');
+        }
+
+        function logout() {
+            currentUser = null;
+            isAdmin = false;
+            showView('loginView');
+            showToast('Logged out successfully', 'success');
+        }
+
+        // ==================== AUTH FORMS ====================
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            demoLogin('user');
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const firstName = document.getElementById('regFirstName').value;
+            const lastName = document.getElementById('regLastName').value;
+            currentUser = {
+                name: firstName + ' ' + lastName,
+                initials: firstName[0] + lastName[0]
+            };
+            showToast('Account created successfully!', 'success');
+            demoLogin('user');
+        });
+
+        // ==================== USER DASHBOARD ====================
+        function loadUserFeed() {
+            const feed = document.getElementById('tweetFeed');
+            feed.innerHTML = '';
+
+            tweets.forEach((tweet, index) => {
+                const card = createTweetCard(tweet, index);
+                feed.appendChild(card);
+            });
+        }
+
+        function createTweetCard(tweet, index) {
+            const card = document.createElement('div');
+            card.className = 'tweet-card';
+            card.style.animationDelay = (index * 0.1) + 's';
+            
+            const initials = tweet.userName.split(' ').map(n => n[0]).join('');
+            
+            card.innerHTML = `
+                <div class="tweet-header">
+                    <div class="user-avatar">${initials}</div>
+                    <div class="tweet-author-info">
+                        <div class="tweet-author-name">${tweet.userName}</div>
+                        <div class="tweet-author-handle">@${tweet.userName.toLowerCase().replace(' ', '')}</div>
+                    </div>
+                    <span class="mh-badge ${tweet.status === 'flagged' ? 'warning' : 'normal'}">${tweet.status === 'flagged' ? 'Needs Support' : 'Healthy'}</span>
+                    <span class="tweet-time">${tweet.time}</span>
+                </div>
+                <div class="tweet-content">${tweet.content}</div>
+                <div class="tweet-actions">
+                    <button class="tweet-action">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        ${Math.floor(Math.random() * 20) + 1}
+                    </button>
+                    <button class="tweet-action">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 1l4 4-4 4"/>
+                            <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+                            <path d="M7 23l-4-4 4-4"/>
+                            <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+                        </svg>
+                        ${Math.floor(Math.random() * 10) + 1}
+                    </button>
+                    <button class="tweet-action">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                        </svg>
+                        ${Math.floor(Math.random() * 50) + 1}
+                    </button>
+                    <button class="tweet-action">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="18" cy="5" r="3"/>
+                            <circle cx="6" cy="12" r="3"/>
+                            <circle cx="18" cy="19" r="3"/>
+                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                        </svg>
+                    </button>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        function postTweet() {
+            const input = document.getElementById('tweetInput');
+            const content = input.value.trim();
+            
+            if (!content) {
+                showToast('Please write something first!', 'error');
+                return;
+            }
+
+            const hasFlaggedWord = mentalHealthKeywords.some(keyword => 
+                content.toLowerCase().includes(keyword.toLowerCase())
+            );
+
+            const newTweet = {
+                id: 'TWT' + String(tweets.length + 1).padStart(3, '0'),
+                userId: 'USR000',
+                userName: currentUser.name,
+                content: content,
+                status: hasFlaggedWord ? 'flagged' : 'normal',
+                time: 'Just now'
+            };
+
+            tweets.unshift(newTweet);
+            
+            const feed = document.getElementById('tweetFeed');
+            const card = createTweetCard(newTweet, 0);
+            feed.insertBefore(card, feed.firstChild);
+            
+            input.value = '';
+            
+            if (hasFlaggedWord) {
+                showToast('Your post has been shared. We noticed you might be going through a tough time. Remember, help is available.', 'success');
+            } else {
+                showToast('Your tweet has been posted!', 'success');
+            }
+        }
+
+        function switchTab(element, tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        // ==================== ADMIN DASHBOARD ====================
+        function loadAdminData() {
+            loadAlertsTable();
+            loadUsersTable();
+            loadTweetsTable();
+            loadKeywordsChart();
+        }
+
+        function loadAlertsTable() {
+            const table = document.getElementById('alertsTable');
+            const alertUsers = users.filter(u => u.status === 'alert' || u.status === 'warning');
+            
+            table.innerHTML = alertUsers.map(user => `
+                <tr>
+                    <td>
+                        <div class="user-cell">
+                            <div class="user-cell-avatar">${user.firstName[0]}${user.lastName[0]}</div>
+                            <div>
+                                <div class="font-medium">${user.firstName} ${user.lastName}</div>
+                                <div class="text-sm text-[var(--muted)]">@${user.username}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${user.email}</td>
+                    <td><span class="font-medium ${user.status === 'alert' ? 'text-[var(--danger)]' : 'text-[var(--warning)]'}">${user.status === 'alert' ? '5+' : '2-4'}</span></td>
+                    <td><span class="mh-badge ${user.status}">${user.status === 'alert' ? 'Alert' : 'Warning'}</span></td>
+                    <td>Today</td>
+                    <td><button class="btn btn-secondary text-sm" onclick="viewUserDetails('${user.id}')">View Details</button></td>
+                </tr>
+            `).join('');
+        }
+
+        function loadUsersTable() {
+            const table = document.getElementById('usersTable');
+            
+            table.innerHTML = users.map(user => `
+                <tr>
+                    <td><code class="text-xs bg-[var(--bg)] px-2 py-1 rounded">${user.id}</code></td>
+                    <td>
+                        <div class="user-cell">
+                            <div class="user-cell-avatar">${user.firstName[0]}${user.lastName[0]}</div>
+                            <span>${user.firstName} ${user.lastName}</span>
+                        </div>
+                    </td>
+                    <td>${user.email}</td>
+                    <td>${user.gender}</td>
+                    <td>${user.state}, ${user.country}</td>
+                    <td><span class="mh-badge ${user.status}">${user.status === 'normal' ? 'Normal' : user.status === 'warning' ? 'Warning' : 'Alert'}</span></td>
+                    <td>${user.joined}</td>
+                </tr>
+            `).join('');
+        }
+
+        function loadTweetsTable() {
+            const table = document.getElementById('tweetsTable');
+            
+            table.innerHTML = tweets.map(tweet => `
+                <tr>
+                    <td><code class="text-xs bg-[var(--bg)] px-2 py-1 rounded">${tweet.id}</code></td>
+                    <td>${tweet.userName}</td>
+                    <td class="max-w-xs truncate">${tweet.content}</td>
+                    <td><span class="mh-badge ${tweet.status === 'flagged' ? 'warning' : 'normal'}">${tweet.status === 'flagged' ? 'Flagged' : 'Normal'}</span></td>
+                    <td>${tweet.time}</td>
+                </tr>
+            `).join('');
+        }
+
+        function loadKeywordsChart() {
+            const keywords = ['depressed', 'anxiety', 'hopeless', 'alone', 'suicide', 'help', 'tired', 'overwhelmed'];
+            const chart = document.getElementById('keywordsChart');
+            
+            chart.innerHTML = keywords.map((keyword, i) => {
+                const percentage = Math.floor(Math.random() * 40) + 20;
+                return `
+                    <div class="flex items-center gap-3">
+                        <span class="w-24 text-sm text-[var(--muted)]">${keyword}</span>
+                        <div class="flex-1 h-6 bg-[var(--bg)] rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-[var(--accent)] to-[#0d9488] rounded-full transition-all duration-1000" 
+                                 style="width: ${percentage}%; animation: growWidth 1s ease-out ${i * 0.1}s both;"></div>
+                        </div>
+                        <span class="w-12 text-sm font-medium">${percentage}%</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function showAdminSection(section) {
+            document.getElementById('overviewSection').style.display = 'none';
+            document.getElementById('usersSection').style.display = 'none';
+            document.getElementById('tweetsSection').style.display = 'none';
+            document.getElementById('analysisSection').style.display = 'none';
+            
+            const sectionId = section + 'Section';
+            document.getElementById(sectionId).style.display = 'block';
+            
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function filterUsers() {
+            const search = document.getElementById('userSearch').value.toLowerCase();
+            const rows = document.querySelectorAll('#usersTable tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(search) ? '' : 'none';
+            });
+        }
+
+        function filterTweets(type) {
+            const rows = document.querySelectorAll('#tweetsTable tr');
+            
+            rows.forEach(row => {
+                if (type === 'all') {
+                    row.style.display = '';
+                } else {
+                    const isFlagged = row.querySelector('.mh-badge.warning');
+                    row.style.display = (type === 'flagged' && isFlagged) || (type === 'normal' && !isFlagged) ? '' : 'none';
+                }
+            });
+        }
+
+        function viewUserDetails(userId) {
+            const user = users.find(u => u.id === userId);
+            if (!user) return;
+            
+            const userTweets = tweets.filter(t => t.userId === userId);
+            
+            document.getElementById('modalContent').innerHTML = `
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="user-avatar text-2xl" style="width: 64px; height: 64px;">${user.firstName[0]}${user.lastName[0]}</div>
+                    <div>
+                        <h3 class="text-lg font-bold">${user.firstName} ${user.lastName}</h3>
+                        <p class="text-[var(--muted)]">@${user.username}</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="stat-card">
+                        <div class="text-sm text-[var(--muted)]">Email</div>
+                        <div class="font-medium">${user.email}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="text-sm text-[var(--muted)]">Gender</div>
+                        <div class="font-medium">${user.gender}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="text-sm text-[var(--muted)]">Location</div>
+                        <div class="font-medium">${user.state}, ${user.country}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="text-sm text-[var(--muted)]">Status</div>
+                        <span class="mh-badge ${user.status}">${user.status}</span>
+                    </div>
+                </div>
+                
+                <h4 class="font-semibold mb-3">Recent Tweets</h4>
+                <div class="space-y-3 max-h-60 overflow-y-auto">
+                    ${userTweets.length ? userTweets.map(t => `
+                        <div class="p-3 bg-[var(--bg)] rounded-lg">
+                            <p class="text-sm">${t.content}</p>
+                            <div class="flex justify-between items-center mt-2">
+                                <span class="text-xs text-[var(--muted)]">${t.time}</span>
+                                <span class="mh-badge ${t.status === 'flagged' ? 'warning' : 'normal'}">${t.status}</span>
+                            </div>
+                        </div>
+                    `).join('') : '<p class="text-sm text-[var(--muted)]">No tweets found</p>'}
+                </div>
+                
+                <div class="flex gap-3 mt-6">
+                    <button class="btn btn-primary flex-1">Send Support Message</button>
+                    <button class="btn btn-secondary flex-1">Export Report</button>
+                </div>
+            `;
+            
+            document.getElementById('userModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('userModal').classList.remove('active');
+        }
+
+        // ==================== TOAST NOTIFICATIONS ====================
+        function showToast(message, type) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <svg class="toast-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    ${type === 'success' ? '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>' : '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>'}
+                </svg>
+                <span>${message}</span>
+            `;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s ease-out reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        // ==================== KEYBOARD NAVIGATION ====================
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // Close modal on overlay click
+        document.getElementById('userModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // ==================== ANIMATION KEYFRAMES ====================
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes growWidth {
+                from { width: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
