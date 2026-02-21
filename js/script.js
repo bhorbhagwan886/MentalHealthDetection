@@ -56,7 +56,7 @@ if (document.getElementById('registerForm')) {
         users.push(newUser);
         saveData();
         alert("Registration Successful! Please login.");
-        window.location.href = "index.html";
+        window.location.href = "login.html";
     });
 }
 
@@ -91,7 +91,7 @@ if (document.getElementById('tweetForm')) {
     const currentUser = JSON.parse(localStorage.getItem('mhd_current_user'));
     
     if (!currentUser) {
-        window.location.href = "index.html";
+        window.location.href = "login.html";
     } else {
         // Profile Setup
         document.getElementById('userName').innerText = currentUser.name;
